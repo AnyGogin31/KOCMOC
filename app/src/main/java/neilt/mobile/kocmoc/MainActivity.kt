@@ -8,14 +8,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -38,7 +35,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun KocmocCanvas() {
-    var points by remember { mutableStateOf(generateRandomPoints(0f, 0f)) }
+    val points = remember { mutableStateListOf<Point>() }
 
     val configuration = LocalConfiguration.current
     val maxWidth = configuration.screenWidthDp.dp.toPx()
@@ -46,41 +43,34 @@ fun KocmocCanvas() {
 
     LaunchedEffect(Unit) {
         while (true) {
-            points += generateRandomPoints(maxWidth, maxHeight)
-            if (points.size > 1000) {
-                points = points.takeLast(1000)
-            }
+            points += generateRandomPoint(maxWidth, maxHeight)
             delay(200)
         }
     }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
-        drawIntoCanvas {
-            points.forEach { point ->
-                drawCircle(
-                    color = point.color,
-                    radius = point.radius,
-                    center = Offset(point.x, point.y)
-                )
-            }
+        drawRect(color = Color.Black, size = size)
+
+        points.forEach { point ->
+            drawCircle(
+                color = point.color,
+                radius = point.radius,
+                center = Offset(point.x, point.y)
+            )
         }
     }
 }
 
-fun generateRandomPoints(maxWidth: Float, maxHeight: Float): List<Point> {
+fun generateRandomPoint(maxWidth: Float, maxHeight: Float): Point {
     val random = Random(System.currentTimeMillis())
-    return List(5) {
-        Point(
-            x = random.nextFloat() * maxWidth,
-            y = random.nextFloat() * maxHeight,
-            radius = random.nextFloat() * random.nextInt(20),
-            color = Color(
-                random.nextInt(256),
-                random.nextInt(256),
-                random.nextInt(256)
-            )
-        )
-    }
+    val grayShade = random.nextInt(256)
+
+    return Point(
+        x = random.nextFloat() * maxWidth,
+        y = random.nextFloat() * maxHeight,
+        radius = random.nextFloat() * 10f,
+        color = Color(grayShade, grayShade, grayShade)
+    )
 }
 
 data class Point(
