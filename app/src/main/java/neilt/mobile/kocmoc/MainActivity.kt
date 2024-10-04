@@ -38,8 +38,11 @@ fun KocmocCanvas() {
 
     LaunchedEffect(Unit) {
         while (true) {
-            points = generateRandomPoints()
-            delay(1000)
+            points += generateRandomPoints()
+            if (points.size > 1000) {
+                points = points.takeLast(1000)
+            }
+            delay(200)
         }
     }
 
@@ -62,7 +65,7 @@ fun generateRandomPoints(): List<Point> {
         Point(
             x = random.nextFloat() * 1080f,
             y = random.nextFloat() * 1920f,
-            radius = random.nextFloat() * 10f,
+            radius = random.nextFloat() * random.nextInt(20),
             color = Color(
                 random.nextInt(256),
                 random.nextInt(256),
